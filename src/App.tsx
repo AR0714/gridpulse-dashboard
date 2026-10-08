@@ -1,3 +1,4 @@
+import Scene from './scene/Scene'
 import TopBar from './ui/TopBar'
 import HealthOrb from './ui/HealthOrb'
 import SideCards from './ui/SideCards'
@@ -5,7 +6,8 @@ import SideCards from './ui/SideCards'
 export default function App() {
   return (
     <div className="h-full px-[24px] pt-[16px]">
-      <main className="panel-backdrop relative h-full overflow-hidden rounded-t-[28px]">
+      <main className="relative h-full overflow-hidden rounded-t-[28px] bg-transparent">
+        <Scene style={{ position: 'absolute', inset: 0 }} />
         <TopBar />
         <HealthOrb value={92} />
         <SideCards nextSample="in 12 days" diagnosis="N · Healthy" />

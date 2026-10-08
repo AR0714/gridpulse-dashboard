@@ -1,8 +1,15 @@
-// Usage: node scripts/shot.mjs <out.png> [url] [width] [height] [waitMs]
+// Usage:
+//   node scripts/shot.mjs phase2                 -> docs/progress/phase2.png
+//   node scripts/shot.mjs <out.png> [url] [width] [height] [waitMs]
 import { chromium } from 'playwright'
-import { existsSync } from 'node:fs'
+import { existsSync, mkdirSync } from 'node:fs'
+import { dirname } from 'node:path'
 
-const [out = 'shot.png', url = 'http://localhost:5173', w = '1440', h = '810', wait = '1500'] = process.argv.slice(2)
+const args = process.argv.slice(2)
+let [out = 'shot', url = 'http://localhost:5173', w = '1440', h = '810', wait = '3500'] = args
+if (!out.includes('/') && !out.endsWith('.png')) out = `docs/progress/${out}.png`
+mkdirSync(dirname(out), { recursive: true })
+
 const exe = ['/opt/pw-browsers/chromium'].find((p) => existsSync(p))
 const browser = await chromium.launch({
   executablePath: exe,
@@ -16,4 +23,5 @@ await page.goto(url, { waitUntil: 'networkidle' })
 await page.waitForTimeout(+wait)
 await page.screenshot({ path: out })
 await browser.close()
+console.log(out)
 console.log(errors.length ? `console errors:\n${errors.join('\n')}` : 'no console errors')
