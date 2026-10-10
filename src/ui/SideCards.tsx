@@ -1,6 +1,7 @@
 type Props = {
   nextSample: string
   diagnosis: string
+  critical?: boolean
   onNextSample?: () => void
   onDiagnosis?: () => void
 }
@@ -13,7 +14,7 @@ function Arrow({ className = '' }: { className?: string }) {
   )
 }
 
-export default function SideCards({ nextSample, diagnosis, onNextSample, onDiagnosis }: Props) {
+export default function SideCards({ nextSample, diagnosis, critical = false, onNextSample, onDiagnosis }: Props) {
   return (
     <div className="absolute bottom-[-40px] right-[40px] z-10 flex w-[252px] flex-col gap-[21px]">
       <section className="relative h-[141px] rounded-[22px] bg-glass px-[24px] pt-[24px] backdrop-blur-xl">
@@ -36,7 +37,11 @@ export default function SideCards({ nextSample, diagnosis, onNextSample, onDiagn
       <section className="diagnosis-gradient relative h-[150px] rounded-[22px] px-[24px] pt-[28px]">
         <h2 className="text-[20.5px] font-semibold leading-[1.15] tracking-[-0.01em] text-white">Diagnosis</h2>
         <div className="absolute left-[24px] top-[93px] flex items-center gap-[4px]">
-          <span className="rounded-full bg-white px-[12px] py-[7px] text-[14px] font-semibold leading-none text-ink">
+          <span
+            className={`whitespace-nowrap rounded-full px-[12px] py-[7px] text-[14px] font-semibold leading-none transition-colors duration-700 ${
+              critical ? 'bg-[#D42A1E] text-white' : 'bg-white text-ink'
+            }`}
+          >
             {diagnosis}
           </span>
           <button

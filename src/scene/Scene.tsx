@@ -5,6 +5,8 @@ import { BlendFunction } from 'postprocessing'
 import { useReducedMotion } from '../lib/motion'
 import { FREEZE_AT } from '../lib/debug'
 import WindingCoil from './WindingCoil'
+import { LOOKS } from '../lib/looks'
+import { useMonitor } from '../store/useMonitor'
 import Dust from './Dust'
 
 /** Stop the render loop while the tab is hidden; resume when it comes back. */
@@ -42,6 +44,7 @@ type Props = { className?: string; style?: CSSProperties }
 
 export default function Scene({ className, style }: Props) {
   const still = useReducedMotion()
+  const code = useMonitor((s) => s.code)
   return (
     <div className={className} style={style} aria-hidden="true">
       <Canvas
@@ -53,7 +56,7 @@ export default function Scene({ className, style }: Props) {
         <color attach="background" args={['#0b0b16']} />
         <PauseWhenHidden still={still} />
         <CameraDrift still={still} />
-        <WindingCoil still={still} />
+        <WindingCoil still={still} look={LOOKS[code]} />
         <Dust still={still} />
         <EffectComposer multisampling={0}>
           {/* Depth of field is done per particle in particleMaterial.ts: the additive points

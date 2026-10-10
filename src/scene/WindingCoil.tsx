@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { createParticleMaterial, mulberry32 } from './particleMaterial'
 import CoreColumn from './CoreColumn'
 import { FREEZE_AT } from '../lib/debug'
+import { LOOKS, blendInto, cloneLook, easeFactor, type VisualLook } from '../lib/looks'
 
 // Winding geometry (world units, before the group scale below)
 export const COIL = {
@@ -16,15 +17,6 @@ export const COIL = {
   rungParticles: 6000, // spacers between the windings, like DNA base pairs
   rungsPerTurn: 4,
 }
-
-/** How the current pulse behaves. Phase 5 drives these per fault scenario. */
-export type PulseSettings = {
-  period: number // seconds per pass along the winding
-  gain: number // brightness of the streak and of the particles it lights up
-  tail: number // comet-tail length, in helix-parameter units
-}
-
-export const HEALTHY_PULSE: PulseSettings = { period: 2.5, gain: 1, tail: 0.075 }
 
 // The head sweeps the on-screen part of the winding and fades in/out at either end,
 // so the streak is visible for most of each pass.
@@ -338,17 +330,82 @@ function CurrentPulse({ material }: { material: THREE.ShaderMaterial }) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Corona / discharge sparks: random points on the conductors that flash briefly.
+// Blue-white for partial discharge, orange-white "bright discharges" for arcing.
+// ---------------------------------------------------------------------------------------------
+
+const CORONA_POINTS = 700
+
+function buildCorona() {
+  const { tube } = COIL
+  const rand = mulberry32(53)
+  const pos = new Float32Array(CORONA_POINTS * 3)
+  const seed = new Float32Array(CORONA_POINTS)
+  const size = new Float32Array(CORONA_POINTS)
+  const C = new THREE.Vector3()
+  const N = new THREE.Vector3()
+  const B = new THREE.Vector3()
+  for (let i = 0; i < CORONA_POINTS; i++) {
+    const t = 0.08 + rand() * 0.84
+    helixFrame(t, rand() < 0.5 ? 0 : Math.PI, C, N, B)
+    const ang = rand() * Math.PI * 2
+    C.addScaledVector(N, Math.cos(ang) * tube * 1.05).addScaledVector(B, Math.sin(ang) * tube * 1.05)
+    pos.set([C.x, C.y, C.z], i * 3)
+    seed[i] = rand()
+    size[i] = rand() < 0.06 ? 3 + rand() * 2 : 0.8 + rand() * 0.8 // a few big bright ones
+  }
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3))
+  g.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1))
+  g.setAttribute('aSize', new THREE.BufferAttribute(size, 1))
+  return g
+}
+
+const coronaVertex = /* glsl */ `
+  attribute float aSeed;
+  attribute float aSize;
+  uniform float uTime;
+  uniform float uAmount;
+  uniform float uRate;
+  uniform float uPixelRatio;
+  uniform vec3 uColor;
+  varying vec3 vColor;
+  varying float vAlpha;
+  varying float vCore;
+
+  void main() {
+    float k = uTime * uRate * (0.7 + 0.6 * aSeed) + aSeed * 37.0;
+    float slot = floor(k);
+    float life = fract(k);
+    float on = step(1.0 - 0.12 * uAmount, fract(sin((slot + aSeed * 311.7) * 12.9898) * 43758.5453));
+    float I = on * pow(1.0 - life, 3.0) * clamp(uAmount, 0.0, 1.0);
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    gl_Position = projectionMatrix * mv;
+    gl_PointSize = (3.0 + 8.0 * I) * aSize * uPixelRatio * (6.0 / -mv.z) * step(0.003, I);
+    vColor = uColor * 3.2;
+    vAlpha = I;
+    vCore = 1.0;
+  }
+`
+
+// ---------------------------------------------------------------------------------------------
 
 type Props = {
   still?: boolean
-  pulse?: PulseSettings
+  look?: VisualLook // target look for the current fault; blended toward over ~1 s
 }
 
-export default function WindingCoil({ still = false, pulse = HEALTHY_PULSE }: Props) {
+export default function WindingCoil({ still = false, look = LOOKS.N }: Props) {
   const spin = useRef<THREE.Group>(null)
   const clock = useRef(0)
+  const phase = useRef(0) // pulse position, in passes (integrated so speed changes never jump)
+  const stall = useRef(0) // seconds left in an arcing stutter
+  const target = useRef(look)
+  target.current = look
+  const cur = useRef(cloneLook(look))
   const dpr = useThree((s) => s.viewport.dpr)
   const geometry = useMemo(buildCoil, [])
+  const coronaGeometry = useMemo(buildCorona, [])
   const material = useMemo(() => createParticleMaterial({ uLit: 1, uBokeh: 1, uFocus: 6 }), [])
   const pulseMaterial = useMemo(
     () =>
@@ -356,7 +413,7 @@ export default function WindingCoil({ still = false, pulse = HEALTHY_PULSE }: Pr
         uniforms: {
           uTime: { value: 0 },
           uHead: { value: -1 },
-          uTail: { value: HEALTHY_PULSE.tail },
+          uTail: { value: LOOKS.N.pulse.tail },
           uGain: { value: 1 },
           uJump: { value: 0.1 },
           uPixelRatio: { value: 1 },
@@ -370,48 +427,97 @@ export default function WindingCoil({ still = false, pulse = HEALTHY_PULSE }: Pr
       }),
     [],
   )
+  const coronaMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uTime: { value: 0 },
+          uAmount: { value: 0 },
+          uRate: { value: 1 },
+          uPixelRatio: { value: 1 },
+          uColor: { value: new THREE.Color('#C4DCFF') },
+        },
+        vertexShader: coronaVertex,
+        fragmentShader: pulseFragment,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [],
+  )
 
   useEffect(() => {
     material.uniforms.uPixelRatio.value = dpr
     pulseMaterial.uniforms.uPixelRatio.value = dpr
-  }, [dpr, material, pulseMaterial])
+    coronaMaterial.uniforms.uPixelRatio.value = dpr
+  }, [dpr, material, pulseMaterial, coronaMaterial])
 
   useEffect(
     () => () => {
       geometry.dispose()
+      coronaGeometry.dispose()
       material.dispose()
       pulseMaterial.dispose()
+      coronaMaterial.dispose()
     },
-    [geometry, material, pulseMaterial],
+    [geometry, coronaGeometry, material, pulseMaterial, coronaMaterial],
   )
 
-  useFrame((_, delta) => {
-    // Reduced motion: freeze everything, leaving a still frame with the streak mid-coil.
-    if (FREEZE_AT !== null) clock.current = FREEZE_AT
+  useFrame((_, rawDelta) => {
+    const delta = Math.min(rawDelta, 0.1)
+    const frozenAt = FREEZE_AT
+    const frozen = frozenAt !== null
+    const c = cur.current
+    if (still || frozen) Object.assign(c, cloneLook(target.current))
+    else blendInto(c, target.current, easeFactor(delta, 1))
+    const P = c.pulse
+
+    if (frozen) clock.current = frozenAt
     else if (!still) clock.current += delta
-    const t = still && FREEZE_AT === null ? pulse.period * 0.42 : clock.current
-    const pass = (t / pulse.period) % 1
+
+    // Pulse position. Arcing (stutter) makes it stall, skip ahead and flicker.
+    let flicker = 1
+    if (frozen) phase.current = frozenAt / P.period
+    else if (still) phase.current = 0.42
+    else if (stall.current > 0) {
+      stall.current -= delta
+      flicker = Math.random() < 0.5 ? 1.4 : 0.35
+    } else {
+      phase.current += delta / P.period
+      if (Math.random() < P.stutter * delta * 2.5) stall.current = 0.05 + Math.random() * 0.12
+      if (Math.random() < P.stutter * delta * 1.2) phase.current += 0.04 + Math.random() * 0.1
+      if (P.stutter > 0.01 && Math.random() < 0.3 * P.stutter) flicker = 0.5 + Math.random() * 0.9
+    }
+    const pass = phase.current % 1
     const head = HEAD_FROM + (HEAD_TO - HEAD_FROM) * pass
     const fade = Math.min(1, pass / 0.1, (1 - pass) / 0.12)
     // A rung spark should take ~0.35 s to cross, whatever the pulse speed.
-    const jump = (0.35 / pulse.period) * (HEAD_TO - HEAD_FROM)
+    const jump = (0.35 / P.period) * (HEAD_TO - HEAD_FROM)
+    const gain = P.gain * flicker
 
     const cu = material.uniforms
     cu.uTime.value = clock.current
     cu.uPulseHead.value = head
-    cu.uPulseLen.value = pulse.tail * 2.2 // the conductor stays hot a little longer than the bolt
-    cu.uPulseGain.value = pulse.gain * fade
+    cu.uPulseLen.value = P.tail * 2.2 // the conductor stays hot a little longer than the bolt
+    cu.uPulseGain.value = gain * fade
+    cu.uTint.value.setRGB(c.coil.tint[0], c.coil.tint[1], c.coil.tint[2])
 
     const pu = pulseMaterial.uniforms
     pu.uTime.value = clock.current
     pu.uHead.value = head
-    pu.uTail.value = pulse.tail
-    pu.uGain.value = pulse.gain
+    pu.uTail.value = P.tail
+    pu.uGain.value = gain
     pu.uJump.value = jump
     pu.uFade.value = fade
 
+    const ku = coronaMaterial.uniforms
+    ku.uTime.value = clock.current
+    ku.uAmount.value = c.coil.corona
+    ku.uRate.value = c.coil.coronaRate
+    ku.uColor.value.setRGB(c.coil.coronaColor[0], c.coil.coronaColor[1], c.coil.coronaColor[2])
+
     if (spin.current) {
-      if (FREEZE_AT !== null) spin.current.rotation.y = 0.003 * 60 * FREEZE_AT
+      if (frozen) spin.current.rotation.y = 0.003 * 60 * frozenAt
       else if (!still) spin.current.rotation.y += 0.003 * delta * 60
     }
   })
@@ -424,6 +530,7 @@ export default function WindingCoil({ still = false, pulse = HEALTHY_PULSE }: Pr
         <group ref={spin}>
           <points geometry={geometry} material={material} frustumCulled={false} />
           <CurrentPulse material={pulseMaterial} />
+          <points geometry={coronaGeometry} material={coronaMaterial} frustumCulled={false} renderOrder={3} />
         </group>
         <CoreColumn />
       </group>

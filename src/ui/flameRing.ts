@@ -12,7 +12,7 @@ export type FlameLook = {
   colMid: [number, number, number]
   colHot: [number, number, number] // hottest filaments
   intensity: number
-  speed: number // flicker / flow speed multiplier
+  speed: number // flicker / flow speed; the caller integrates it into the time it passes to render()
   reach: number // tendril length in CSS px
   sparks: number // 0..1 blue-white corona sparks (PD)
   arcs: number // 0..1 jagged lightning arcs around the rim (D2)
@@ -51,7 +51,6 @@ uniform float uTime;
 uniform float uDisc;      // disc radius, CSS px
 uniform float uReach;     // tendril length, CSS px
 uniform float uIntensity;
-uniform float uSpeed;
 uniform vec3 uDeep;
 uniform vec3 uMid;
 uniform vec3 uHot;
@@ -119,7 +118,7 @@ void main() {
   float r = length(px);
   vec2 dir = px / max(r, 1e-3);
   float ang = atan(px.y, px.x);
-  float t = uTime * uSpeed;
+  float t = uTime;
   float d = (r - uDisc - 8.0) / uReach;                 // 0 at the rim (just outside the disc), 1 at the tendril tips
 
   // large-scale warp so the whole ring breathes and licks
@@ -170,11 +169,11 @@ void main() {
   if (uSparks > 0.0) {
     float slot = floor((ang + 3.14159) / 6.28318 * 90.0);
     float life = fract(t * 1.3 + hash(slot) * 10.0);
-    float on = step(1.0 - 0.12 * uSparks, hash(slot + floor(t * 1.3 + hash(slot) * 10.0) * 17.0));
+    float on = step(1.0 - 0.28 * uSparks, hash(slot + floor(t * 1.3 + hash(slot) * 10.0) * 17.0));
     float sa = abs(fract((ang + 3.14159) / 6.28318 * 90.0) - 0.5);
-    float sr = abs(d - life * 0.9);
-    float spark = on * exp(-sa * 22.0) * exp(-sr * 18.0) * (1.0 - life);
-    col += vec3(0.75, 0.88, 1.0) * spark * 2.5;
+    float sr = abs(d - life * 1.1);
+    float spark = on * exp(-sa * 12.0) * exp(-sr * 11.0) * (1.0 - life);
+    col += vec3(0.55, 0.78, 1.0) * spark * 4.0 * uSparks;
   }
 
   // jagged lightning arcs jumping along the rim (high-energy arcing)
@@ -247,7 +246,6 @@ export function createFlameRing(canvas: HTMLCanvasElement): FlameRing | null {
     disc: u('uDisc'),
     reach: u('uReach'),
     intensity: u('uIntensity'),
-    speed: u('uSpeed'),
     deep: u('uDeep'),
     mid: u('uMid'),
     hot: u('uHot'),
@@ -262,7 +260,6 @@ export function createFlameRing(canvas: HTMLCanvasElement): FlameRing | null {
       gl.uniform3fv(U.mid, look.colMid)
       gl.uniform3fv(U.hot, look.colHot)
       gl.uniform1f(U.intensity, look.intensity)
-      gl.uniform1f(U.speed, look.speed)
       gl.uniform1f(U.reach, look.reach)
       gl.uniform1f(U.sparks, look.sparks)
       gl.uniform1f(U.arcs, look.arcs)

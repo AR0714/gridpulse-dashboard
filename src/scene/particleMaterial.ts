@@ -31,6 +31,7 @@ export type ParticleUniforms = {
   uPulseHead: { value: number }
   uPulseLen: { value: number }
   uPulseGain: { value: number }
+  uTint: { value: THREE.Color }
 }
 
 const vertexShader = /* glsl */ `
@@ -56,6 +57,7 @@ const vertexShader = /* glsl */ `
   uniform float uPulseHead;
   uniform float uPulseLen;
   uniform float uPulseGain;
+  uniform vec3 uTint;
 
   varying vec3 vColor;
   varying float vAlpha;
@@ -86,6 +88,8 @@ const vertexShader = /* glsl */ `
       pg = aPulse.y * uPulseGain * (dt >= 0.0 ? exp(-dt / uPulseLen) : exp(dt / (uPulseLen * 0.12)));
       col = mix(col, vec3(1.0, 0.62, 0.28) * 2.7, clamp(pg, 0.0, 1.0) * 0.75); // warm glow; the white-hot core is the streak itself
     }
+
+    col *= uTint;
 
     float tw = 1.0 - uTwinkle * 0.55 + uTwinkle * 0.55 * sin(uTime * (1.2 + aPhase * 2.6) + aPhase * 6.2831);
 
@@ -130,6 +134,7 @@ export function createParticleMaterial(overrides: Partial<Record<keyof ParticleU
     uPulseHead: { value: -1 },
     uPulseLen: { value: 0.035 },
     uPulseGain: { value: 0 },
+    uTint: { value: new THREE.Color(1, 1, 1) },
   }
   for (const [k, v] of Object.entries(overrides)) {
     ;(uniforms as Record<string, { value: unknown }>)[k].value = v

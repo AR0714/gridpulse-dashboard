@@ -68,9 +68,12 @@ function HelpButton() {
   )
 }
 
-export default function TopBar() {
+export default function TopBar({ offset = 0 }: { offset?: number }) {
   return (
-    <header className="pointer-events-none absolute inset-x-0 top-0 z-20">
+    <header
+      className="pointer-events-none absolute inset-x-0 top-0 z-20 transition-transform duration-500 ease-out"
+      style={{ transform: `translateY(${offset}px)` }}
+    >
       <a
         href="#"
         aria-label="gridpulse home"

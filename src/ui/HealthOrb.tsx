@@ -3,10 +3,11 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { createFlameRing, REFERENCE_FLAME, type FlameLook } from './flameRing'
 import { useReducedMotion } from '../lib/motion'
 import { FREEZE_AT } from '../lib/debug'
+import { blendInto, easeFactor } from '../lib/looks'
 
 const DISC = 336 // black disc diameter, CSS px
 const PAD = 100 // room around the disc for tendrils and glow
-const STEP_MS = 150 // one integer per step when the score changes
+const STEP_MS = 140 // one integer per step when the score changes (spec: 120–180 ms)
 
 /** Walks the displayed value toward the target one integer at a time. */
 function useTicker(target: number, instant: boolean) {
@@ -63,7 +64,8 @@ function TickingNumber({ value, still }: { value: number; still: boolean }) {
 
 function FlameCanvas({ look, still }: { look: FlameLook; still: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null)
-  const ringRef = useRef<ReturnType<typeof createFlameRing>>(null)
+  const target = useRef(look)
+  target.current = look
 
   useEffect(() => {
     const canvas = ref.current
@@ -75,31 +77,38 @@ function FlameCanvas({ look, still }: { look: FlameLook; still: boolean }) {
       console.warn('Flame ring unavailable:', e)
     }
     if (!ring) return
-    ringRef.current = ring
     const size = DISC + PAD * 2
     // the flame is soft, so it doesn't need full retina resolution; this halves its fragment cost
     ring.resize(size, Math.min(window.devicePixelRatio || 1, 1.25), DISC / 2)
-    ring.setLook(look)
 
+    // `cur` eases toward the scenario's look over ~1 s; flame time advances at cur.speed so a
+    // change of speed never makes the noise jump.
+    const cur = structuredClone(target.current)
+    let flameTime = 1.7
+    let last = performance.now()
     let raf = 0
-    const t0 = performance.now()
-    const frame = () => {
-      ring!.render(FREEZE_AT ?? (performance.now() - t0) / 1000)
-      if (!still && FREEZE_AT === null) raf = requestAnimationFrame(frame)
+    let drawn: FlameLook | null = null
+    const frame = (now: number) => {
+      const dt = Math.min(0.1, (now - last) / 1000)
+      last = now
+      raf = requestAnimationFrame(frame)
+      if (still || FREEZE_AT !== null) {
+        // still frame: snap to the target and only redraw when it changes
+        if (drawn === target.current) return
+        drawn = target.current
+        Object.assign(cur, structuredClone(target.current))
+      } else blendInto(cur, target.current, easeFactor(dt, 1))
+      if (FREEZE_AT !== null) flameTime = FREEZE_AT * cur.speed
+      else if (!still) flameTime += dt * cur.speed
+      ring!.setLook(cur)
+      ring!.render(flameTime)
     }
-    frame()
+    raf = requestAnimationFrame(frame)
     return () => {
       cancelAnimationFrame(raf)
       ring!.dispose()
-      ringRef.current = null
     }
-    // look changes are pushed separately below; the loop only restarts on `still`
   }, [still])
-
-  useEffect(() => {
-    ringRef.current?.setLook(look)
-    if (still) ringRef.current?.render(FREEZE_AT ?? 1.7)
-  }, [look, still])
 
   return (
     <canvas
