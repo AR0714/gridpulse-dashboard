@@ -11,6 +11,9 @@ import * as THREE from 'three'
  * Depth of field is faked per particle as well: points far from uFocus grow into large,
  * dim bokeh discs. The post-processing DepthOfField can't see additive points (they don't
  * write depth), so this is what actually gives the near and far ends their bokeh.
+ *
+ * Optional aPulse (vec2: helix parameter t, response 0..1): particles light up white-hot as
+ * the current pulse head (uPulseHead, same t units) passes them, with a comet tail behind.
  */
 export type ParticleUniforms = {
   uTime: { value: number }
@@ -25,6 +28,9 @@ export type ParticleUniforms = {
   uBokeh: { value: number }
   uDrift: { value: number }
   uDriftBox: { value: THREE.Vector3 }
+  uPulseHead: { value: number }
+  uPulseLen: { value: number }
+  uPulseGain: { value: number }
 }
 
 const vertexShader = /* glsl */ `
@@ -33,6 +39,7 @@ const vertexShader = /* glsl */ `
   attribute float aAlpha;
   attribute float aPhase;
   attribute vec3 aNormal;
+  attribute vec2 aPulse;
 
   uniform float uTime;
   uniform float uSize;
@@ -46,6 +53,9 @@ const vertexShader = /* glsl */ `
   uniform float uBokeh;
   uniform float uDrift;
   uniform vec3 uDriftBox;
+  uniform float uPulseHead;
+  uniform float uPulseLen;
+  uniform float uPulseGain;
 
   varying vec3 vColor;
   varying float vAlpha;
@@ -69,16 +79,24 @@ const vertexShader = /* glsl */ `
       col *= 0.8 + 1.5 * smoothstep(-0.2, 1.0, l); // HDR on the lit side so Bloom picks it up
     }
 
+    // current pulse: sharp leading edge, exponential comet tail behind the head
+    float pg = 0.0;
+    if (aPulse.y > 0.0 && uPulseGain > 0.0) {
+      float dt = uPulseHead - aPulse.x;
+      pg = aPulse.y * uPulseGain * (dt >= 0.0 ? exp(-dt / uPulseLen) : exp(dt / (uPulseLen * 0.12)));
+      col = mix(col, vec3(1.0, 0.62, 0.28) * 2.7, clamp(pg, 0.0, 1.0) * 0.75); // warm glow; the white-hot core is the streak itself
+    }
+
     float tw = 1.0 - uTwinkle * 0.55 + uTwinkle * 0.55 * sin(uTime * (1.2 + aPhase * 2.6) + aPhase * 6.2831);
 
     float depth = -mv.z;
     // circle of confusion, with an in-focus zone of ±1.5 units around the focal plane
     float coc = clamp((abs(depth - uFocus) - 1.5) / uFocus, 0.0, 1.0) * uBokeh;
-    float size = uSize * aSize * (1.0 + coc * 5.0);
+    float size = uSize * aSize * (1.0 + coc * 5.0) * (1.0 + pg * 0.35);
 
     gl_PointSize = size * uPixelRatio * (6.0 / depth);
     vColor = col;
-    vAlpha = aAlpha * tw * uOpacity / (1.0 + coc * coc * 9.0);
+    vAlpha = min(1.0, aAlpha * (1.0 + pg) * tw) * uOpacity / (1.0 + coc * coc * 9.0);
   }
 `
 
@@ -109,6 +127,9 @@ export function createParticleMaterial(overrides: Partial<Record<keyof ParticleU
     uBokeh: { value: 0 },
     uDrift: { value: 0 },
     uDriftBox: { value: new THREE.Vector3(3, 3, 3) },
+    uPulseHead: { value: -1 },
+    uPulseLen: { value: 0.035 },
+    uPulseGain: { value: 0 },
   }
   for (const [k, v] of Object.entries(overrides)) {
     ;(uniforms as Record<string, { value: unknown }>)[k].value = v

@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Bloom, EffectComposer, Noise, Vignette } from '@react-three/postprocessing'
 import { BlendFunction } from 'postprocessing'
 import { useReducedMotion } from '../lib/motion'
+import { FREEZE_AT } from '../lib/debug'
 import WindingCoil from './WindingCoil'
 import Dust from './Dust'
 
@@ -28,8 +29,8 @@ function PauseWhenHidden({ still }: { still: boolean }) {
 /** Very slight camera drift so the scene never feels frozen. */
 function CameraDrift({ still }: { still: boolean }) {
   useFrame(({ camera, clock }) => {
-    if (still) return
-    const t = clock.elapsedTime
+    if (still && FREEZE_AT === null) return
+    const t = FREEZE_AT ?? clock.elapsedTime
     camera.position.x = Math.sin(t * 0.07) * 0.12
     camera.position.y = Math.sin(t * 0.05 + 1.3) * 0.08
     camera.lookAt(0, 0, 0)

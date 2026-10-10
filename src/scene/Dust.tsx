@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { createParticleMaterial, mulberry32 } from './particleMaterial'
+import { FREEZE_AT } from '../lib/debug'
 
 const COUNT = 800
 // Drift box half-extents. Wider than tall so the dust covers the whole 16:9 panel.
@@ -85,7 +86,8 @@ export default function Dust({ still = false }: Props) {
   )
 
   useFrame((_, delta) => {
-    if (!still) material.uniforms.uTime.value += delta
+    if (FREEZE_AT !== null) material.uniforms.uTime.value = FREEZE_AT
+    else if (!still) material.uniforms.uTime.value += delta
   })
 
   return (
