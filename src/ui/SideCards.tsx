@@ -34,7 +34,10 @@ export default function SideCards({ nextSample, diagnosis, critical = false, onN
         </button>
       </section>
 
-      <section className="diagnosis-gradient relative h-[150px] rounded-[22px] px-[24px] pt-[28px]">
+      <section
+        className="diagnosis-gradient relative h-[150px] cursor-pointer rounded-[22px] px-[24px] pt-[28px]"
+        onClick={onDiagnosis}
+      >
         <h2 className="text-[20.5px] font-semibold leading-[1.15] tracking-[-0.01em] text-white">Diagnosis</h2>
         <div className="absolute left-[24px] top-[93px] flex items-center gap-[4px]">
           <span
@@ -47,7 +50,10 @@ export default function SideCards({ nextSample, diagnosis, critical = false, onN
           <button
             type="button"
             aria-label="Open dissolved gas details"
-            onClick={onDiagnosis}
+            onClick={(e) => {
+              e.stopPropagation()
+              onDiagnosis?.()
+            }}
             className="grid h-[30px] w-[30px] place-items-center rounded-full bg-white text-ink transition hover:bg-white/85"
           >
             <Arrow className="h-[15px] w-[15px]" />

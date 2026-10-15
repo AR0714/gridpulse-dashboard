@@ -2,6 +2,7 @@
 // Usage: node scripts/interact.mjs <url> step step ...
 //   wait:<ms>        press:<key>        click:<css selector>
 //   shot:<out.png>   (a bare name goes to docs/progress/<name>.png)
+//   eval:<js>        prints the result of a JS expression evaluated in the page
 // Env: W, H (viewport, default 1440×810), REDUCED=1 for prefers-reduced-motion.
 import { chromium } from 'playwright'
 import { existsSync, mkdirSync } from 'node:fs'
@@ -28,6 +29,7 @@ for (const step of steps) {
   if (op === 'wait') await page.waitForTimeout(+arg)
   else if (op === 'press') await page.keyboard.press(arg)
   else if (op === 'click') await page.click(arg)
+  else if (op === 'eval') console.log(`eval ${arg} =>`, await page.evaluate(arg))
   else if (op === 'shot') {
     const out = arg.includes('/') || arg.endsWith('.png') ? arg : `docs/progress/${arg}.png`
     mkdirSync(dirname(out), { recursive: true })
