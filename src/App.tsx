@@ -7,6 +7,7 @@ import ScenarioSwitch from './ui/ScenarioSwitch'
 import AlertStrip, { ALERT_HEIGHT } from './ui/AlertStrip'
 import ActionsCard, { type ActionsState } from './ui/ActionsCard'
 import GasModal from './ui/GasModal'
+import Assistant from './ui/Assistant'
 import { SCENARIOS } from './data/scenarios'
 import { LOOKS } from './lib/looks'
 import { startLiveFeed, useMonitor } from './store/useMonitor'
@@ -57,6 +58,7 @@ export default function App() {
             GitHub
           </a>
         </footer>
+        <Assistant />
         <GasModal open={modalOpen} onClose={closeModal} />
       </main>
     </div>
