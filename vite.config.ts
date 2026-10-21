@@ -41,4 +41,23 @@ function netlifyFunctionInDev(): Plugin {
 export default defineConfig({
   plugins: [react(), tailwindcss(), netlifyFunctionInDev()],
   server: { port: 5173, host: true },
+  build: {
+    // three.js alone is ~700 kB minified; it is split out and loaded lazily with the scene.
+    chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          // React (and the scheduler) get their own chunk, otherwise Rollup folds them into the
+          // r3f chunk and the entry has to load the 3D code up front.
+          if (/\/node_modules\/(react|react-dom|scheduler)\//.test(id)) return 'react'
+          if (/\/node_modules\/(framer-motion|motion-dom|motion-utils)\//.test(id)) return 'motion'
+          if (/\/node_modules\/(zustand|use-sync-external-store)\//.test(id)) return 'state' // shared with r3f
+          if (id.includes('/three/')) return 'three'
+          if (id.includes('postprocessing')) return 'postfx'
+          if (id.includes('@react-three')) return 'r3f'
+        },
+      },
+    },
+  },
 })

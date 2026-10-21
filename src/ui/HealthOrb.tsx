@@ -133,7 +133,7 @@ export default function HealthOrb({ value, look = REFERENCE_FLAME, onOpen }: Pro
       type="button"
       onClick={onOpen}
       aria-label={`Transformer Health Index ${value} of 100. Open dissolved gas details`}
-      className="absolute left-[358px] top-[57%] z-10 grid h-[336px] w-[336px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-white"
+      className="absolute left-[358px] top-[57%] z-10 grid h-[336px] w-[336px] -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-white max-md:left-1/2 max-md:top-[238px] max-md:scale-[0.714]"
     >
       {/* fallback disc if WebGL is unavailable; the flame canvas draws the real, soft-edged one */}
       <span className="absolute inset-[16px] rounded-full bg-black" aria-hidden="true" />

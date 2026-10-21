@@ -16,7 +16,7 @@ function Arrow({ className = '' }: { className?: string }) {
 
 export default function SideCards({ nextSample, diagnosis, critical = false, onNextSample, onDiagnosis }: Props) {
   return (
-    <div className="absolute bottom-[-40px] right-[40px] z-10 flex w-[252px] flex-col gap-[21px]">
+    <div className="absolute bottom-[-40px] right-[40px] z-10 flex w-[252px] flex-col gap-[21px] max-md:static max-md:order-1 max-md:w-full max-md:gap-[12px]">
       <section className="relative h-[141px] rounded-[22px] bg-glass px-[24px] pt-[24px] backdrop-blur-xl">
         <h2 className="text-[20.5px] font-semibold leading-[1.15] tracking-[-0.01em] text-white">
           Next oil

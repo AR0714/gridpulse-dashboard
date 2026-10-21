@@ -39,7 +39,7 @@ function HelpButton() {
   }, [open])
 
   return (
-    <div ref={ref} className="absolute left-1/2 top-[33px] -translate-x-1/2">
+    <div ref={ref} className="absolute left-1/2 top-[33px] -translate-x-1/2 max-md:left-auto max-md:right-[16px] max-md:top-[74px] max-md:translate-x-0">
       <button
         type="button"
         aria-label="How this works"
@@ -53,7 +53,7 @@ function HelpButton() {
         <div
           role="dialog"
           aria-label="How this works"
-          className="absolute left-1/2 top-8 w-[320px] -translate-x-1/2 rounded-[18px] bg-white p-5 text-[13px] leading-relaxed text-ink shadow-2xl"
+          className="absolute left-1/2 top-8 w-[320px] -translate-x-1/2 rounded-[18px] max-md:left-auto max-md:right-0 max-md:w-[300px] max-md:translate-x-0 bg-white p-5 text-[13px] leading-relaxed text-ink shadow-2xl"
         >
           <p className="mb-2 text-[15px] font-semibold">How this works</p>
           <p className="text-black/70">
@@ -77,23 +77,23 @@ export default function TopBar({ offset = 0 }: { offset?: number }) {
       <a
         href="#"
         aria-label="gridpulse home"
-        className="pointer-events-auto absolute left-[43px] top-[26px] flex items-center gap-[13px]"
+        className="pointer-events-auto absolute left-[43px] top-[26px] flex items-center gap-[13px] max-md:left-[16px] max-md:top-[20px] max-md:gap-[8px] max-md:[&_svg]:h-[36px] max-md:[&_svg]:w-[36px]"
       >
         <LogoMark />
-        <span className="text-[45px] font-normal leading-none tracking-[-0.025em] text-white">gridpulse</span>
+        <span className="text-[45px] font-normal leading-none tracking-[-0.025em] text-white max-md:text-[28px]">gridpulse</span>
       </a>
 
       <div className="pointer-events-auto">
         <HelpButton />
       </div>
 
-      <div className="absolute right-[38px] top-[24px] flex items-center gap-[24px]">
-        <p className="text-right text-[33px] font-bold leading-[1.17] tracking-[-0.02em] text-white">
+      <div className="absolute right-[38px] top-[24px] flex items-center gap-[24px] max-md:right-[16px] max-md:top-[16px] max-md:gap-[10px]">
+        <p className="text-right text-[33px] font-bold leading-[1.17] tracking-[-0.02em] text-white max-md:text-[17px]">
           UNIT-07
           <br />
           Substation
         </p>
-        <div className="h-[78px] w-[78px] shrink-0 rounded-full bg-gradient-to-br from-[#ffd34a] to-[#f2a91e] p-[3px]">
+        <div className="h-[78px] w-[78px] shrink-0 rounded-full bg-gradient-to-br from-[#ffd34a] to-[#f2a91e] p-[3px] max-md:h-[46px] max-md:w-[46px] max-md:p-[2px]">
           <img
             src="/transformer.jpg"
             alt="Substation transformer UNIT-07"

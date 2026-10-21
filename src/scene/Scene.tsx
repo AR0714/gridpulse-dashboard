@@ -1,5 +1,6 @@
-import { useEffect, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { PerformanceMonitor } from '@react-three/drei/core/PerformanceMonitor'
 import { Bloom, EffectComposer, Noise, Vignette } from '@react-three/postprocessing'
 import { BlendFunction } from 'postprocessing'
 import { useReducedMotion } from '../lib/motion'
@@ -45,15 +46,19 @@ type Props = { className?: string; style?: CSSProperties }
 export default function Scene({ className, style }: Props) {
   const still = useReducedMotion()
   const code = useMonitor((s) => s.code)
+  // Start at the device pixel ratio (capped at 1.75) and step down to 1 if the frame rate drops.
+  const maxDpr = Math.min(typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1, 1.75)
+  const [dpr, setDpr] = useState(maxDpr)
   return (
     <div className={className} style={style} aria-hidden="true">
       <Canvas
         camera={{ position: [0, 0, 6], fov: 55, near: 0.1, far: 50 }}
-        dpr={[1, 1.75]}
+        dpr={dpr}
         frameloop="always"
         gl={{ antialias: false, powerPreference: 'high-performance', stencil: false }}
       >
         <color attach="background" args={['#0b0b16']} />
+        <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(maxDpr)} flipflops={3} />
         <PauseWhenHidden still={still} />
         <CameraDrift still={still} />
         <WindingCoil still={still} look={LOOKS[code]} />

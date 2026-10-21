@@ -13,7 +13,7 @@ export default function AlertStrip({ show }: { show: boolean }) {
           animate={{ y: 0 }}
           exit={{ y: '-100%' }}
           transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-          className="absolute inset-x-0 top-0 z-30 flex items-center justify-center gap-[10px] bg-[#C7261C] text-[13px] font-semibold text-white shadow-[0_6px_24px_rgba(199,38,28,0.45)]"
+          className="absolute inset-x-0 top-0 z-30 flex items-center justify-center gap-[10px] bg-[#C7261C] px-[12px] text-[13px] max-md:gap-[6px] max-md:text-[10.5px] font-semibold text-white shadow-[0_6px_24px_rgba(199,38,28,0.45)]"
           style={{ height: ALERT_HEIGHT }}
         >
           <span className="relative flex h-[8px] w-[8px]" aria-hidden="true">

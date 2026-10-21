@@ -33,7 +33,7 @@ export default function ActionsCard({ state, scenario, onChange }: Props) {
       initial={false}
       animate={{ y: state === 'hidden' ? 220 : 0 }}
       transition={SPRING}
-      className="absolute bottom-[-40px] right-[312px] z-10 w-[314px] rounded-[22px] bg-white text-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+      className="absolute bottom-[-40px] right-[312px] z-10 w-[314px] rounded-[22px] max-md:relative max-md:bottom-auto max-md:right-auto max-md:order-2 max-md:w-full bg-white text-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
       style={{ pointerEvents: state === 'hidden' ? 'none' : 'auto' }}
       aria-hidden={state === 'hidden'}
     >
@@ -48,7 +48,7 @@ export default function ActionsCard({ state, scenario, onChange }: Props) {
             onChange(open ? 'peek' : 'open')
           }
         }}
-        className="relative cursor-pointer rounded-[22px] px-[31px] pb-[64px] pt-[24px] outline-offset-[-3px]"
+        className="relative cursor-pointer rounded-[22px] px-[31px] pb-[64px] pt-[24px] outline-offset-[-3px] max-md:px-[24px] max-md:pb-[22px]"
       >
         <h2 className="pr-[44px] text-[20.5px] font-semibold leading-[1.18] tracking-[-0.01em]">
           Maintenance

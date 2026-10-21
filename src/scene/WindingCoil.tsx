@@ -404,6 +404,8 @@ export default function WindingCoil({ still = false, look = LOOKS.N }: Props) {
   target.current = look
   const cur = useRef(cloneLook(look))
   const dpr = useThree((s) => s.viewport.dpr)
+  // Phones (portrait canvas): stand the winding up behind the orb instead of across the panel.
+  const portrait = useThree((s) => s.size.width < s.size.height)
   const geometry = useMemo(buildCoil, [])
   const coronaGeometry = useMemo(buildCorona, [])
   const material = useMemo(() => createParticleMaterial({ uLit: 1, uBokeh: 1, uFocus: 6 }), [])
@@ -525,7 +527,11 @@ export default function WindingCoil({ still = false, look = LOOKS.N }: Props) {
   return (
     // Outer group places the winding diagonally across the panel, like the DNA in the reference;
     // the inner group spins it around its own axis.
-    <group position={[1.35, 0.3, 0.2]} rotation={[0, 0, -0.68]} scale={1.45}>
+    <group
+      position={portrait ? [0.2, 0.35, -0.6] : [1.35, 0.3, 0.2]}
+      rotation={[0, 0, portrait ? -0.3 : -0.68]}
+      scale={portrait ? 1.05 : 1.45}
+    >
       <group rotation={[-0.12, 0, 0]}>
         <group ref={spin}>
           <points geometry={geometry} material={material} frustumCulled={false} />

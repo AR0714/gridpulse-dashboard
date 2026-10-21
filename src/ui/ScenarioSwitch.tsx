@@ -23,7 +23,7 @@ export default function ScenarioSwitch() {
     <div
       role="radiogroup"
       aria-label="Fault scenario (keys 1 to 5)"
-      className="absolute left-[358px] top-[calc(57%+212px)] z-10 flex -translate-x-1/2 items-center gap-[6px]"
+      className="absolute left-[358px] top-[calc(57%+212px)] z-10 flex -translate-x-1/2 items-center gap-[6px] max-md:left-1/2 max-md:top-[388px]"
     >
       {SCENARIO_ORDER.map((c, i) => {
         const active = c === code

@@ -127,7 +127,7 @@ export default function GasModal({ open, onClose }: Props) {
       {open && (
         <motion.div
           key="gas-modal"
-          className="absolute inset-0 z-40"
+          className="absolute inset-0 z-40 max-md:fixed"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.25 } }}
@@ -145,7 +145,7 @@ export default function GasModal({ open, onClose }: Props) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.25 } }}
             transition={{ duration: still ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute bottom-0 left-1/2 top-[109px] w-[684px] -translate-x-1/2 overflow-y-auto overscroll-contain rounded-t-[28px] bg-white px-[40px] pb-[40px] pt-[31px] text-ink [scrollbar-width:thin]"
+            className="absolute bottom-0 left-1/2 top-[109px] w-[684px] -translate-x-1/2 overflow-y-auto max-md:left-[8px] max-md:right-[8px] max-md:top-[48px] max-md:w-auto max-md:translate-x-0 max-md:px-[20px] max-md:pt-[22px] overscroll-contain rounded-t-[28px] bg-white px-[40px] pb-[40px] pt-[31px] text-ink [scrollbar-width:thin]"
           >
             <div className="flex items-center gap-[15px]">
               <IconButton label="Back" onClick={onClose}>
@@ -169,7 +169,7 @@ export default function GasModal({ open, onClose }: Props) {
               Seven gases dissolved in the transformer oil, read live every 3 seconds.
             </p>
 
-            <div className="mt-[26px] flex items-baseline justify-between">
+            <div className="mt-[26px] flex items-baseline justify-between max-md:flex-col max-md:gap-[2px]">
               <h3 className="text-[15.5px] font-semibold">Total dissolved combustible gas</h3>
               <span className="text-[11.5px] text-black/80">IEC 60599 · IEEE C57.104</span>
             </div>
@@ -194,7 +194,7 @@ export default function GasModal({ open, onClose }: Props) {
               ))}
             </div>
 
-            <div className="mt-[24px] grid grid-cols-6 gap-[8px]">
+            <div className="mt-[24px] grid grid-cols-6 gap-[8px] max-md:grid-cols-3 max-md:gap-y-[14px]">
               {COMBUSTIBLE.map((k) => (
                 <div key={k} className="min-w-0">
                   <p className="h-[30px] text-[11.5px] leading-[1.3] text-black/85">
@@ -223,7 +223,7 @@ export default function GasModal({ open, onClose }: Props) {
             <p className="mt-[26px] text-[15.5px] font-semibold leading-[1.55]">{s.interpretation}</p>
 
             <div className="mt-[28px] border-t border-black/10 pt-[24px]">
-              <div className="flex items-baseline justify-between">
+              <div className="flex items-baseline justify-between max-md:flex-col max-md:gap-[2px]">
                 <h3 className="text-[15.5px] font-semibold">Why the model decided</h3>
                 <span className="text-[11.5px] text-black/60">SHAP · red pushes toward {s.code}, green away</span>
               </div>
