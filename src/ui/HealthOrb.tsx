@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { createFlameRing, REFERENCE_FLAME, type FlameLook } from './flameRing'
 import { useReducedMotion } from '../lib/motion'
-import { FREEZE_AT } from '../lib/debug'
+import { FREEZE_AT, TICK_MS } from '../lib/debug'
 import { blendInto, easeFactor } from '../lib/looks'
 
 const DISC = 336 // black disc diameter, CSS px
 const PAD = 100 // room around the disc for tendrils and glow
-const STEP_MS = 140 // one integer per step when the score changes (spec: 120–180 ms)
+const STEP_MS = TICK_MS ?? 140 // one integer per step when the score changes (spec: 120–180 ms)
 
 /** Walks the displayed value toward the target one integer at a time. */
 function useTicker(target: number, instant: boolean) {

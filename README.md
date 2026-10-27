@@ -4,6 +4,8 @@ A cinematic, real-time health dashboard for a power transformer, built as the po
 for my final-year electrical engineering + ML project,
 **[Intelligent Transformer Health Monitoring using Dissolved Gas Analysis (DGA) and ML](https://github.com/AR0714/transformer-health-dga)**.
 
+![GridPulse demo — scenario switching, dissolved gas analysis, and AI diagnosis](docs/demo.gif)
+
 A copper transformer winding made of glowing particles carries a current pulse, while a Health Index
 orb burns with a flame edge that changes with the fault the model detects. Click the orb for the
 dissolved-gas breakdown, the model's reasoning (SHAP) and how it compares with the Duval triangle,

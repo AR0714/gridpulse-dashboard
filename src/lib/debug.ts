@@ -22,3 +22,17 @@ function readGrow(): number | null {
 }
 
 export const GROW_AT = readGrow()
+
+/**
+ * `?tick=<ms>` changes how fast the Health Index counts (one integer per step, default 140 ms).
+ * Used for the demo GIF so a 92 → 12 count fits a short loop.
+ */
+function readTick(): number | null {
+  if (typeof window === 'undefined') return null
+  const v = new URLSearchParams(window.location.search).get('tick')
+  if (v === null) return null
+  const n = Number(v)
+  return Number.isFinite(n) ? Math.min(400, Math.max(20, n)) : null
+}
+
+export const TICK_MS = readTick()

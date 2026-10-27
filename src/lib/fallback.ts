@@ -26,6 +26,19 @@ const GAS_WORDS: [GasKey, RegExp][] = [
   ['H2', /hydrogen|\bh2\b|h₂/i],
 ]
 
+const DEENERGIZE: Record<ScenarioCode, (g: Gases) => string> = {
+  N: (g) =>
+    `No. All seven gases are inside IEC 60599 typical limits (${gasText(g, 'H2')}, ${gasText(g, 'C2H2')}), so there is no reason to take it out of service. Keep it running and stay on the routine schedule: next oil sample ${SCENARIOS.N.nextSample}.`,
+  PD: (g) =>
+    `Not yet. ${gasText(g, 'H2')} points to partial discharge, which is low-energy and develops slowly. Keep it in service, re-sample the oil now and locate the source with online PD measurements; plan an outage only if hydrogen keeps climbing or acetylene appears.`,
+  T1: (g) =>
+    `Not yet. ${gasText(g, 'CH4')} and ${gasText(g, 'CO')} point to a hot spot below 300 °C, which you can usually manage in service. Check loading and cooling first and re-sample in 2 weeks; plan an outage if the gassing rate rises.`,
+  T3: (g) =>
+    `Plan for it, but you can reduce load first. ${gasText(g, 'C2H4')} means a hot spot above 700 °C that can escalate, so cut the load, sample weekly and schedule an outage for an internal inspection of the core ground and connections.`,
+  D2: (g) =>
+    `Yes, de-energize now. ${gasText(g, 'C2H2')} and ${gasText(g, 'H2')} mean high-energy arcing inside the tank, which can lead to tank rupture or fire. Isolate the transformer, then inspect the windings, leads, tap changer and bushings before any re-energization.`,
+}
+
 const SAFETY: Record<ScenarioCode, (g: Gases, h: number) => string> = {
   N: (g, h) =>
     `Yes. The Health Index is ${h}/100 and all seven gases are inside IEC 60599 typical limits, for example ${gasText(g, 'H2')} and ${gasText(g, 'C2H2')}. Keep it in normal service and stay on the routine schedule: next oil sample ${SCENARIOS.N.nextSample}.`,
@@ -57,7 +70,9 @@ export function fallbackAnswer(question: string, code: ScenarioCode, gases: Gase
   const s = SCENARIOS[code]
   const q = question.toLowerCase()
 
-  if (/safe|keep (it )?running|in service|operate|run it|energi[sz]ed|shut ?down/.test(q)) return SAFETY[code](gases, health)
+  if (/de-?energi[sz]|shut ?(it )?down|switch (it )?off|take (it )?(out of service|offline)|isolate/.test(q)) return DEENERGIZE[code](gases)
+
+  if (/safe|keep (it )?running|in service|operate|run it|energi[sz]ed/.test(q)) return SAFETY[code](gases, health)
 
   if (/acetylene|c2h2|c₂h₂/.test(q) && /why|matter|important|mean|what/.test(q)) return gasAnswer('C2H2', code, gases)
 
