@@ -1,16 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMonitor } from '../store/useMonitor'
 import type { ScenarioCode } from '../data/scenarios'
 
-// Hero image: remote Unsplash shots, then the dashboard's own transformer photo as a last resort
-// so the card never shows a broken image.
-const HERO_SOURCES = [
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
-  'https://images.unsplash.com/photo-1497435334941-8c899ee9e8e9?w=800&q=80',
-  '/transformer.jpg',
-]
+// Hero image: a wide crop of the substation transformer photo (also used for the avatar).
+const HERO_SRC = '/substation-hero.jpg'
 
 // Nameplate data for the (simulated) unit.
 const STATS: [icon: string, label: string, value: string][] = [
@@ -41,7 +36,6 @@ export interface SubstationProfileModalProps {
 export default function SubstationProfileModal({ open, onClose, healthIndex }: SubstationProfileModalProps) {
   const code = useMonitor((s) => s.code)
   const status = STATUS[code]
-  const [hero, setHero] = useState(0)
   const panel = useRef<HTMLDivElement>(null)
   const closeBtn = useRef<HTMLButtonElement>(null)
 
@@ -108,13 +102,7 @@ export default function SubstationProfileModal({ open, onClose, healthIndex }: S
             className="relative max-h-[calc(100dvh-32px)] w-full max-w-[480px] overflow-y-auto overscroll-contain rounded-[20px] border border-[rgba(255,160,0,0.25)] bg-[rgba(10,10,20,0.92)] text-white shadow-[0_0_60px_rgba(255,120,0,0.15)] backdrop-blur-[24px]"
           >
             <div className="relative h-[200px] w-full overflow-hidden rounded-t-[20px] bg-gradient-to-br from-[#1a0a00] via-[#2d1500] to-[#1a0a00]">
-              <img
-                src={HERO_SOURCES[hero]}
-                crossOrigin="anonymous"
-                alt="UNIT-07 substation"
-                className="h-full w-full object-cover"
-                onError={() => setHero((h) => (h < HERO_SOURCES.length - 1 ? h + 1 : h))}
-              />
+              <img src={HERO_SRC} alt="UNIT-07 substation transformer" className="h-full w-full object-cover object-top" />
               <div className="absolute inset-x-0 bottom-0 h-[70px] bg-gradient-to-t from-[rgba(10,10,20,0.92)] to-transparent" aria-hidden="true" />
             </div>
 
