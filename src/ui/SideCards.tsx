@@ -16,30 +16,30 @@ function Arrow({ className = '' }: { className?: string }) {
 
 export default function SideCards({ nextSample, diagnosis, critical = false, onNextSample, onDiagnosis }: Props) {
   return (
-    <div className="absolute bottom-[-40px] right-[40px] z-10 flex w-[252px] flex-col gap-[21px] max-md:static max-md:order-1 max-md:w-full max-md:gap-[12px]">
-      <section className="relative h-[141px] rounded-[22px] bg-glass px-[24px] pt-[24px] backdrop-blur-xl">
-        <h2 className="text-[20.5px] font-semibold leading-[1.15] tracking-[-0.01em] text-white">
-          Next oil
-          <br />
+    <div className="absolute bottom-[-40px] right-[40px] z-10 flex w-[252px] flex-col gap-[21px] max-md:bottom-[92px] max-md:left-[12px] max-md:right-[12px] max-md:w-auto max-md:gap-[10px]">
+      <section className="relative h-[141px] rounded-[22px] bg-glass px-[24px] pt-[24px] backdrop-blur-xl max-md:h-[72px] max-md:px-[18px] max-md:pt-[14px]">
+        <h2 className="text-[20.5px] font-semibold leading-[1.15] tracking-[-0.01em] text-white max-md:text-[17px]">
+          Next oil{' '}
+          <br className="max-md:hidden" />
           sample
         </h2>
-        <p className="absolute bottom-[29px] left-[24px] text-[11.5px] font-medium text-white/55">{nextSample}</p>
+        <p className="absolute bottom-[29px] left-[24px] text-[11.5px] font-medium text-white/55 max-md:bottom-[14px] max-md:left-[18px]">{nextSample}</p>
         <button
           type="button"
           aria-label="Show maintenance actions"
           onClick={onNextSample}
-          className="absolute bottom-[21px] right-[22px] grid h-[30px] w-[30px] place-items-center rounded-full bg-black text-white transition hover:bg-neutral-900"
+          className="absolute bottom-[21px] right-[22px] grid h-[30px] w-[30px] place-items-center rounded-full bg-black text-white transition hover:bg-neutral-900 max-md:right-[18px]"
         >
           <Arrow />
         </button>
       </section>
 
       <section
-        className="diagnosis-gradient relative h-[150px] cursor-pointer rounded-[22px] px-[24px] pt-[28px]"
+        className="diagnosis-gradient relative h-[150px] cursor-pointer rounded-[22px] px-[24px] pt-[28px] max-md:flex max-md:h-[72px] max-md:items-center max-md:px-[18px] max-md:pt-0"
         onClick={onDiagnosis}
       >
-        <h2 className="text-[20.5px] font-semibold leading-[1.15] tracking-[-0.01em] text-white">Diagnosis</h2>
-        <div className="absolute left-[24px] top-[93px] flex items-center gap-[4px]">
+        <h2 className="text-[20.5px] font-semibold leading-[1.15] tracking-[-0.01em] text-white max-md:text-[17px]">Diagnosis</h2>
+        <div className="absolute left-[24px] top-[93px] flex items-center gap-[4px] max-md:left-auto max-md:right-[18px] max-md:top-1/2 max-md:-translate-y-1/2">
           <span
             className={`whitespace-nowrap rounded-full px-[12px] py-[7px] text-[14px] font-semibold leading-none transition-colors duration-700 ${
               critical ? 'bg-[#D42A1E] text-white' : 'bg-white text-ink'

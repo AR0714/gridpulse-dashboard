@@ -42,11 +42,11 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="h-full px-[24px] pt-[16px] max-md:h-auto max-md:min-h-full max-md:p-[10px]">
-      <main className="relative h-full overflow-clip rounded-t-[28px] bg-[#0b0b16] max-md:flex max-md:h-auto max-md:min-h-[calc(100dvh-20px)] max-md:flex-col max-md:gap-[12px] max-md:rounded-[24px] max-md:px-[14px] max-md:pb-[18px] max-md:pt-[432px]">
+    <div className="relative min-h-0 w-full flex-1">
+      <main className="absolute inset-0 overflow-clip bg-[#0b0b16]">
         <SceneBoundary>
           <Suspense fallback={<div className="scene-fallback absolute inset-0" aria-hidden="true" />}>
-            <Scene className="absolute inset-0 max-md:bottom-auto max-md:h-[560px] max-md:opacity-70 max-md:[mask-image:linear-gradient(#000_65%,transparent)]" />
+            <Scene className="absolute inset-0 max-md:opacity-80" />
           </Suspense>
         </SceneBoundary>
         <AlertStrip show={critical} />
@@ -61,7 +61,7 @@ export default function App() {
           onNextSample={() => setActions((a) => (a === 'hidden' ? 'peek' : 'open'))}
           onDiagnosis={openModal}
         />
-        <footer className="absolute bottom-[14px] left-[43px] z-10 text-[11px] text-white/40 max-md:static max-md:order-3 max-md:px-[4px] max-md:pb-[52px] max-md:pt-[4px] max-md:text-center max-md:leading-[1.6]">
+        <footer className="absolute bottom-[14px] left-[43px] z-10 text-[11px] text-white/40 max-md:hidden">
           Simulated sensor data · Calibrated XGBoost, 80% accuracy on sealed test set ·{' '}
           <a
             href="https://github.com/AR0714/transformer-health-dga"

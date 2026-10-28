@@ -33,7 +33,7 @@ export default function ActionsCard({ state, scenario, onChange }: Props) {
       initial={false}
       animate={{ y: state === 'hidden' ? 220 : 0 }}
       transition={SPRING}
-      className="absolute bottom-[-40px] right-[312px] z-10 w-[314px] rounded-[22px] max-md:relative max-md:bottom-auto max-md:right-auto max-md:order-2 max-md:w-full bg-white text-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
+      className="absolute bottom-[-40px] right-[312px] z-10 w-[314px] rounded-[22px] max-md:bottom-[12px] max-md:left-[12px] max-md:right-[12px] max-md:z-[15] max-md:w-auto bg-white text-ink shadow-[0_18px_50px_rgba(0,0,0,0.35)]"
       style={{ pointerEvents: state === 'hidden' ? 'none' : 'auto' }}
       aria-hidden={state === 'hidden'}
     >
@@ -48,14 +48,14 @@ export default function ActionsCard({ state, scenario, onChange }: Props) {
             onChange(open ? 'peek' : 'open')
           }
         }}
-        className="relative cursor-pointer rounded-[22px] px-[31px] pb-[64px] pt-[24px] outline-offset-[-3px] max-md:px-[24px] max-md:pb-[22px]"
+        className="relative cursor-pointer rounded-[22px] px-[31px] pb-[64px] pt-[24px] outline-offset-[-3px] max-md:px-[18px] max-md:pb-[14px] max-md:pt-[14px]"
       >
-        <h2 className="pr-[44px] text-[20.5px] font-semibold leading-[1.18] tracking-[-0.01em]">
-          Maintenance
-          <br />
+        <h2 className="pr-[44px] text-[20.5px] font-semibold leading-[1.18] tracking-[-0.01em] max-md:text-[17px]">
+          Maintenance{' '}
+          <br className="max-md:hidden" />
           actions
         </h2>
-        <p className="mt-[11px] text-[11.5px] font-semibold text-black/75">Recommendations</p>
+        <p className="mt-[11px] text-[11.5px] font-semibold text-black/75 max-md:mt-[4px]">Recommendations</p>
 
         <AnimatePresence initial={false}>
           {open && (
@@ -91,7 +91,7 @@ export default function ActionsCard({ state, scenario, onChange }: Props) {
           e.stopPropagation()
           onChange(open ? 'peek' : 'hidden')
         }}
-        className="absolute right-[22px] top-[20px] grid h-[27px] w-[27px] place-items-center rounded-full bg-[#E6E6E6] text-ink transition hover:bg-[#d9d9d9]"
+        className="absolute right-[22px] top-[20px] grid h-[27px] w-[27px] max-md:right-[16px] max-md:top-[16px] place-items-center rounded-full bg-[#E6E6E6] text-ink transition hover:bg-[#d9d9d9]"
       >
         <Chevron up={false} />
       </button>

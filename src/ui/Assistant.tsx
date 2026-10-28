@@ -73,7 +73,7 @@ export default function Assistant() {
 
   return (
     <>
-      <div className="group absolute bottom-[40px] left-[43px] z-30 max-md:fixed max-md:bottom-[18px] max-md:left-auto max-md:right-[18px]">
+      <div className="group absolute bottom-[40px] left-[43px] z-30 max-md:bottom-[250px] max-md:left-auto max-md:right-[12px]">
         <button
           ref={button}
           type="button"
@@ -98,7 +98,7 @@ export default function Assistant() {
             exit={{ opacity: 0, scale: 0.97, y: 6, transition: { duration: 0.2 } }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             style={{ transformOrigin: 'bottom left' }}
-            className="absolute bottom-[96px] left-[43px] z-30 flex max-h-[min(470px,calc(100%-200px))] w-[372px] max-md:fixed max-md:inset-x-[10px] max-md:bottom-[74px] max-md:max-h-[72dvh] max-md:w-auto flex-col rounded-[22px] bg-white text-ink shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
+            className="absolute bottom-[96px] left-[43px] z-30 flex max-h-[min(470px,calc(100%-200px))] w-[372px] max-md:inset-x-[10px] max-md:bottom-[12px] max-md:max-h-[calc(100%-110px)] max-md:w-auto flex-col rounded-[22px] bg-white text-ink shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
           >
             <header className="flex items-start gap-[12px] px-[22px] pb-[12px] pt-[20px]">
               <div className="min-w-0 flex-1">

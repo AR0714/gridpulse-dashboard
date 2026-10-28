@@ -111,7 +111,7 @@ docs/                      screenshots (docs/progress holds the build-phase comp
 
 - Real buttons with visible focus rings; the modal traps focus, and Esc closes it.
 - `prefers-reduced-motion` freezes the coil, pulse, flicker and card animations.
-- Responsive: on phones (≤ 768 px) the orb moves to the top, the coil sits behind it, and the cards stack below.
+- Full-bleed at every size: the dashboard fills exactly 100vw × 100vh with no scrollbars. On phones (≤ 768 px) the orb moves to the top with the coil behind it, and the cards sit in compact rows along the bottom.
 - The 3D scene is lazy-loaded after the UI paints. Pixel ratio is capped at 1.75 and drops to 1 when frames suffer; rendering pauses when the tab is hidden.
 
 Handy URL parameters: `?scenario=D2` opens straight into a fault; `?freeze=1.2` pins the animation clock (used for screenshots).
