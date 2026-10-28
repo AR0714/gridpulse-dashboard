@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import SubstationProfileModal from './SubstationProfileModal'
+import { useMonitor } from '../store/useMonitor'
 
 function LogoMark() {
   // White disc with a dark winding: leads run to the rim, like the
@@ -69,6 +71,10 @@ function HelpButton() {
 }
 
 export default function TopBar({ offset = 0 }: { offset?: number }) {
+  const [showProfile, setShowProfile] = useState(false)
+  const healthIndex = useMonitor((s) => s.health)
+  // stable, so the modal's focus handling doesn't re-run on every 3-second reading
+  const closeProfile = useCallback(() => setShowProfile(false), [])
   return (
     <header
       className="pointer-events-none absolute inset-x-0 top-0 z-20 transition-transform duration-500 ease-out"
@@ -93,14 +99,22 @@ export default function TopBar({ offset = 0 }: { offset?: number }) {
           <br />
           Substation
         </p>
-        <div className="h-[78px] w-[78px] shrink-0 rounded-full bg-gradient-to-br from-[#ffd34a] to-[#f2a91e] p-[3px] max-md:h-[46px] max-md:w-[46px] max-md:p-[2px]">
+        <button
+          type="button"
+          aria-label="Open UNIT-07 substation profile"
+          aria-haspopup="dialog"
+          aria-expanded={showProfile}
+          onClick={() => setShowProfile(true)}
+          className="pointer-events-auto h-[78px] w-[78px] shrink-0 cursor-pointer rounded-full bg-gradient-to-br from-[#ffd34a] to-[#f2a91e] p-[3px] transition-shadow duration-300 hover:shadow-[0_0_16px_rgba(255,165,0,0.5)] max-md:h-[46px] max-md:w-[46px] max-md:p-[2px]"
+        >
           <img
             src="/transformer.jpg"
             alt="Substation transformer UNIT-07"
             className="h-full w-full rounded-full object-cover"
           />
-        </div>
+        </button>
       </div>
+      <SubstationProfileModal open={showProfile} onClose={closeProfile} healthIndex={healthIndex} />
     </header>
   )
 }
